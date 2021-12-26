@@ -21,6 +21,9 @@ showChat.addEventListener("click", () => {
 
 const user = prompt("Enter your name");
 
+//Options: after user clicks join room
+// const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })    //location.search: ?username=Yash+garg&room=room+Name
+
 //PeerJS allow us to implement WebRTC.
 var peer = new Peer(undefined, {
   path: "/peerjs",
@@ -41,6 +44,7 @@ navigator.mediaDevices
 
     peer.on("call", (call) => {
       call.answer(stream);
+      
       const video = document.createElement("video");
       call.on("stream", (userVideoStream) => {
         addVideoStream(video, userVideoStream);
@@ -55,7 +59,7 @@ navigator.mediaDevices
     console.log('54 error while asking permission: ', e);
   })
 
-  
+
 const connectToNewUser = (userId, stream) => {
   const call = peer.call(userId, stream);
   const video = document.createElement("video");
@@ -73,11 +77,18 @@ const addVideoStream = (video, stream) => {
   });
 };
 
+// var ROOM_ID;
+// socket.on('roomId-passed', (roomId) => {
+//   // ROOM_ID = roomId
+//   console.log('82roomId from URL', ROOM_ID);
+// })
+
 peer.on("open", (id) => {
+  console.log('86 joining room', ROOM_ID);
   socket.emit("join-room", ROOM_ID, id, user);
 });
 
-
+///////////////////////////////////////////////////
 
 let text = document.querySelector("#chat_message");
 let send = document.getElementById("send");
@@ -97,6 +108,7 @@ text.addEventListener("keydown", (e) => {
   }
 });
 
+//EXTRA
 const inviteButton = document.querySelector("#inviteButton");
 const muteButton = document.querySelector("#muteButton");
 const stopVideo = document.querySelector("#stopVideo");

@@ -27,25 +27,33 @@ app.use("/peerjs", peerServer);
 app.use(express.static("public"));  //to access css
 
 app.get("/", (req, res) => {
+  console.log('30 redirecting to new URL');
   res.redirect(`/${uuidv4()}`); //redirecting to new URL
 });
 
+var roomId;
 //redering room.ejs
 app.get("/:room", (req, res) => {
-  res.render("room", { roomId: req.params.room });  //passing the unique room(url)
+  roomId = req.params.room;
+  res.render("room", { roomId: roomId });  //passing the unique room(url)
+
 });
 
 io.on("connection", (socket) => {
   console.log('new Websocket Connection');
+  // socket.emit('roomId-passed', roomId)  //letting the user access roomId
 
   socket.on("join-room", (roomId, userId, userName) => {
     socket.join(roomId);
-    socket.to(roomId).broadcast.emit("user-connected", userId);
+    console.log('44 room joined', roomId);
+
+    io.to(roomId).broadcast.emit("user-connected", userId);
 
     socket.on("message", (message) => {
       io.to(roomId).emit("createMessage", message, userName);
     });
   });
+
 });
 
 server.listen(port, () => {
